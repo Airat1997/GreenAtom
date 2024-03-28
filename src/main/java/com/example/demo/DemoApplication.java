@@ -47,7 +47,7 @@ class DataLoader {
 }
 
 @RestController
-@RequestMapping("/topics")
+@RequestMapping("/topic")
 class RestApiDemoController {
 	private final TopicRepository topicRepository;
 
@@ -83,6 +83,9 @@ class RestApiDemoController {
 	void deleteTopic(@PathVariable String id) {
 		topicRepository.deleteById(id);
 	}
+
+
+
 }
 
 interface TopicRepository extends CrudRepository<Topic, String> {}
@@ -127,7 +130,6 @@ class Topic {
 class Message {
 	@Id
 	private String id;
-
 	@Column
 	private String text;
 	@Column
@@ -142,4 +144,23 @@ class Message {
 		this.created = created;
 	}
 
+	public String getId() {
+		return id;
+	}
+
+	public String getAuthor() {
+		return author;
+	}
+
+	public void setAuthor(String author) {
+		this.author = author;
+	}
+
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
 }
