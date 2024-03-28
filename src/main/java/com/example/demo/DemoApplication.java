@@ -3,7 +3,6 @@ package com.example.demo;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import org.apache.coyote.Response;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.repository.CrudRepository;
@@ -12,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,78 +26,79 @@ public class DemoApplication {
 
 @Component
 class DataLoader {
-	private final CoffeeRepository coffeeRepository;
+	private final TopicRepository topicRepository;
 
-	public DataLoader(CoffeeRepository coffeeRepository) {
-		this.coffeeRepository = coffeeRepository;
+	public DataLoader(TopicRepository topicRepository) {
+		this.topicRepository = topicRepository;
 	}
 
 	@PostConstruct
 	private void loadData() {
-		coffeeRepository.saveAll(List.of(
-				new Coffee("Café Cereza"),
-				new Coffee("Café Ganador"),
-				new Coffee("Café Lareño"),
-				new Coffee("Café Três Pontas")
+		topicRepository.saveAll(List.of(
+				new Topic("Java"),
+				new Topic("C++"),
+				new Topic("Python"),
+				new Topic("Golang")
 		));
 	}
 }
-@RestController
-@RequestMapping("/coffees")
-class RestApiDemoController {
-	private final CoffeeRepository coffeeRepository;
 
-	public RestApiDemoController(CoffeeRepository coffeeRepository) {
-		this.coffeeRepository = coffeeRepository;
+@RestController
+@RequestMapping("/topics")
+class RestApiDemoController {
+	private final TopicRepository topicRepository;
+
+	public RestApiDemoController(TopicRepository topicRepository) {
+		this.topicRepository = topicRepository;
 	}
 
 	@GetMapping
-	Iterable<Coffee> getCoffees() {
-		return coffeeRepository.findAll();
+	Iterable<Topic> getTopics() {
+		return topicRepository.findAll();
 	}
 
 	@GetMapping("/{id}")
-	Optional<Coffee> getCoffeeById(@PathVariable String id) {
-		return coffeeRepository.findById(id);
+	Optional<Topic> getTopicById(@PathVariable String id) {
+		return topicRepository.findById(id);
 	}
 
 	@PostMapping
-	Coffee postCoffee(@RequestBody Coffee coffee) {
-		return coffeeRepository.save(coffee);
+	Topic postTopic(@RequestBody Topic topic) {
+		return topicRepository.save(topic);
 	}
 
 	@PutMapping("/{id}")
-	ResponseEntity<Coffee> putCoffee(@PathVariable String id,
-									 @RequestBody Coffee coffee) {
+	ResponseEntity<Topic> putTopic(@PathVariable String id,
+									@RequestBody Topic topic) {
 
-		return (coffeeRepository.existsById(id))
-				? new ResponseEntity<>(coffeeRepository.save(coffee), HttpStatus.OK)
-				: new ResponseEntity<>(coffeeRepository.save(coffee), HttpStatus.CREATED);
+		return (topicRepository.existsById(id))
+				? new ResponseEntity<>(topicRepository.save(topic), HttpStatus.OK)
+				: new ResponseEntity<>(topicRepository.save(topic), HttpStatus.CREATED);
 	}
 
 	@DeleteMapping("/{id}")
-	void deleteCoffee(@PathVariable String id) {
-		coffeeRepository.deleteById(id);
+	void deleteTopic(@PathVariable String id) {
+		topicRepository.deleteById(id);
 	}
 }
 
-interface CoffeeRepository extends CrudRepository<Coffee, String> {}
+interface TopicRepository extends CrudRepository<Topic, String> {}
 
 @Entity
-class Coffee {
+class Topic {
 	@Id
 	private String id;
 	private String name;
 
-	public Coffee() {
+	public Topic() {
 	}
 
-	public Coffee(String id, String name) {
+	public Topic(String id, String name) {
 		this.id = id;
 		this.name = name;
 	}
 
-	public Coffee(String name) {
+	public Topic(String name) {
 		this(UUID.randomUUID().toString(), name);
 	}
 
