@@ -1,8 +1,10 @@
 package com.example.demo;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.repository.CrudRepository;
@@ -23,6 +25,7 @@ public class DemoApplication {
 	}
 
 }
+
 
 @Component
 class DataLoader {
@@ -88,6 +91,7 @@ interface TopicRepository extends CrudRepository<Topic, String> {}
 class Topic {
 	@Id
 	private String id;
+	@Column(name = "name")
 	private String name;
 
 	public Topic() {
@@ -117,4 +121,25 @@ class Topic {
 	public void setName(String name) {
 		this.name = name;
 	}
+}
+
+@Entity
+class Message {
+	@Id
+	private String id;
+
+	@Column
+	private String text;
+	@Column
+	private String author;
+	@Column
+	private String created;
+
+	public Message(String id, String text, String author, String created){
+		this.id = id;
+		this.text = text;
+		this.author = author;
+		this.created = created;
+	}
+
 }
