@@ -7,6 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -37,21 +38,24 @@ class RestApiDemoController {
 	Iterable<Topic> getTopics() {
 		return topicRepository.findAll();
 	}
-
-	@GetMapping("/messages")
-	Iterable<Message> getMessages(){
-		return messageRepository.findAll();
+	@GetMapping("/{topicId}")
+	public ResponseEntity<TopicWithMessages> getAllMessagesTopicById(@PathVariable String topicId) {
+		Topic topic = topicRepository.findById(topicId).orElseThrow(() -> new ResourceNotFoundException("Topic not found"));
+		List<Message> messages = messageRepository.findByTopicId(topicId);
+		TopicWithMessages topicWithMessages = new TopicWithMessages();
+		topicWithMessages.setId(topic.getId());
+		topicWithMessages.setName(topic.getName());
+		topicWithMessages.setMessages(messages);
+		return ResponseEntity.ok(topicWithMessages);
 	}
 
-	@GetMapping("/messages/{topicId}")
-	Iterable<Message> getAllMessagesTopicById(@PathVariable String topicId){
-		return messageRepository.findByTopicId(topicId);
-	}
 
-	@GetMapping("/{id}")
-	Optional<Topic> getAllMessageTopicById(@PathVariable String id) {
-		return topicRepository.findById(id);
-	}
+
+
+//	@GetMapping("/{id}")
+//	Optional<Topic> getAllMessageTopicById(@PathVariable String id) {
+//		return topicRepository.findById(id);
+//	}
 
 
 	@PostMapping
@@ -59,14 +63,14 @@ class RestApiDemoController {
 		return topicRepository.save(topic);
 	}
 
-	@PutMapping("/{id}")
-	ResponseEntity<Topic> putTopic(@PathVariable String id,
-									@RequestBody Topic topic) {
-
-		return (topicRepository.existsById(id))
-				? new ResponseEntity<>(topicRepository.save(topic), HttpStatus.OK)
-				: new ResponseEntity<>(topicRepository.save(topic), HttpStatus.CREATED);
-	}
+//	@PutMapping("/{id}")
+//	ResponseEntity<Topic> putTopic(@PathVariable String id,
+//									@RequestBody Topic topic) {
+//
+//		return (topicRepository.existsById(id))
+//				? new ResponseEntity<>(topicRepository.save(topic), HttpStatus.OK)
+//				: new ResponseEntity<>(topicRepository.save(topic), HttpStatus.CREATED);
+//	}
 
 	@DeleteMapping("/{id}")
 	void deleteTopic(@PathVariable String id) {
@@ -95,7 +99,7 @@ class Topic {
 	public Topic() {
 	}
 
-	@OneToMany(mappedBy = "topic", cascade = CascadeType.ALL,orphanRemoval = true)
+	@OneToMany(mappedBy = "topic")
 	private List<Message> messages;
 	public Topic(String id, String name, String created) {
 		this.id = id;
@@ -139,6 +143,7 @@ class Message {
 	@Column
 	private String created;
 
+	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "topic_id")
 	private Topic topic;
@@ -177,4 +182,38 @@ class Message {
 	public Topic getTopic() {
 		return topic;
 	}
+}
+
+class TopicWithMessages {
+	private String id;
+	private String name;
+	private List<Message> messages;
+
+	public TopicWithMessages(){
+	};
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public List<Message> getMessages() {
+		return messages;
+	}
+
+	public void setMessages(List<Message> messages) {
+		this.messages = messages;
+	}
+
 }
