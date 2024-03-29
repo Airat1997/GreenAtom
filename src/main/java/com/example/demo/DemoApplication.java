@@ -40,13 +40,12 @@ class RestApiDemoController {
 
 	@GetMapping("/messages")
 	Iterable<Message> getMessages(){
-		long count = messageRepository.count();
-		if (count > 0) {
-			System.out.println("Таблица не пуста, содержит " + count + " записей.");
-		} else {
-			System.out.println("Таблица пуста.");
-		}
 		return messageRepository.findAll();
+	}
+
+	@GetMapping("/messages/{topicId}")
+	Iterable<Message> getAllMessagesTopicById(@PathVariable String topicId){
+		return messageRepository.findByTopicId(topicId);
 	}
 
 	@GetMapping("/{id}")
@@ -79,7 +78,9 @@ class RestApiDemoController {
 }
 
 interface TopicRepository extends CrudRepository<Topic, String> {}
-interface MessageRepository extends CrudRepository<Message, String> {}
+interface MessageRepository extends CrudRepository<Message, String> {
+	List<Message> findByTopicId(String topicId);
+}
 
 @Entity
 class Topic {
