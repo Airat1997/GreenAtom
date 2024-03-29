@@ -48,7 +48,15 @@ class RestApiDemoController {
 		topicWithMessages.setMessages(messages);
 		return ResponseEntity.ok(topicWithMessages);
 	}
-
+	@PostMapping
+	Topic postTopic(@RequestBody TopicWithMessageRequest request) {
+		Topic topic = new Topic(request.getTopicName());
+		topic = topicRepository.save(topic);
+		Message message = new Message(request.getMessage().getId(), request.getMessage().getText(), request.getMessage().getAuthor(), request.getMessage().getCreated());
+		message.setTopic(topic);
+		messageRepository.save(message);
+		return topic;
+	}
 
 
 
@@ -58,10 +66,7 @@ class RestApiDemoController {
 //	}
 
 
-	@PostMapping
-	Topic postTopic(@RequestBody Topic topic) {
-		return topicRepository.save(topic);
-	}
+
 
 //	@PutMapping("/{id}")
 //	ResponseEntity<Topic> putTopic(@PathVariable String id,
@@ -182,6 +187,10 @@ class Message {
 	public Topic getTopic() {
 		return topic;
 	}
+
+	public void setTopic(Topic topic) {
+		this.topic = topic;
+	}
 }
 
 class TopicWithMessages {
@@ -216,4 +225,30 @@ class TopicWithMessages {
 		this.messages = messages;
 	}
 
+}
+
+class TopicWithMessageRequest {
+	private String topicName;
+	private Message message;
+	public TopicWithMessageRequest() {
+	}
+	public TopicWithMessageRequest(String topicName, Message message) {
+		this.topicName = topicName;
+		this.message = message;
+	}
+	public String getTopicName() {
+		return topicName;
+	}
+
+	public void setTopicName(String topicName) {
+		this.topicName = topicName;
+	}
+
+	public Message getMessage() {
+		return message;
+	}
+
+	public void setMessage(Message message) {
+		this.message = message;
+	}
 }
