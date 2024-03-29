@@ -1,18 +1,14 @@
 package com.example.demo;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,33 +22,15 @@ public class DemoApplication {
 
 }
 
-
-@Component
-class DataLoader {
-	private final TopicRepository topicRepository;
-
-	public DataLoader(TopicRepository topicRepository) {
-		this.topicRepository = topicRepository;
-	}
-
-	@PostConstruct
-	private void loadData() {
-		topicRepository.saveAll(List.of(
-				new Topic("Java"),
-				new Topic("C++"),
-				new Topic("Python"),
-				new Topic("Golang")
-		));
-	}
-}
-
 @RestController
 @RequestMapping("/topic")
 class RestApiDemoController {
 	private final TopicRepository topicRepository;
+	private final MessageRepository messageRepository;
 
-	public RestApiDemoController(TopicRepository topicRepository) {
+	public RestApiDemoController(TopicRepository topicRepository, MessageRepository mesegeRepository) {
 		this.topicRepository = topicRepository;
+		this.messageRepository = mesegeRepository;
 	}
 
 	@GetMapping
@@ -60,10 +38,22 @@ class RestApiDemoController {
 		return topicRepository.findAll();
 	}
 
+	@GetMapping("/messages")
+	Iterable<Message> getMessages(){
+		long count = messageRepository.count();
+		if (count > 0) {
+			System.out.println("Таблица не пуста, содержит " + count + " записей.");
+		} else {
+			System.out.println("Таблица пуста.");
+		}
+		return messageRepository.findAll();
+	}
+
 	@GetMapping("/{id}")
-	Optional<Topic> getTopicById(@PathVariable String id) {
+	Optional<Topic> getAllMessageTopicById(@PathVariable String id) {
 		return topicRepository.findById(id);
 	}
+
 
 	@PostMapping
 	Topic postTopic(@RequestBody Topic topic) {
@@ -89,6 +79,7 @@ class RestApiDemoController {
 }
 
 interface TopicRepository extends CrudRepository<Topic, String> {}
+interface MessageRepository extends CrudRepository<Message, String> {}
 
 @Entity
 class Topic {
@@ -97,16 +88,22 @@ class Topic {
 	@Column(name = "name")
 	private String name;
 
+	@Column(name = "created")
+	private String created;
+
 	public Topic() {
 	}
 
-	public Topic(String id, String name) {
+	@OneToMany(mappedBy = "topic", cascade = CascadeType.ALL,orphanRemoval = true)
+	private List<Message> messages;
+	public Topic(String id, String name, String created) {
 		this.id = id;
 		this.name = name;
+		this.created = created;
 	}
 
 	public Topic(String name) {
-		this(UUID.randomUUID().toString(), name);
+		this(UUID.randomUUID().toString(), name, LocalDateTime.now().toString());
 	}
 
 	public String getId() {
@@ -124,6 +121,10 @@ class Topic {
 	public void setName(String name) {
 		this.name = name;
 	}
+
+	public String getCreated() {
+		return created;
+	}
 }
 
 @Entity
@@ -137,13 +138,17 @@ class Message {
 	@Column
 	private String created;
 
+	@ManyToOne
+	@JoinColumn(name = "topic_id")
+	private Topic topic;
 	public Message(String id, String text, String author, String created){
 		this.id = id;
 		this.text = text;
 		this.author = author;
 		this.created = created;
 	}
-
+	public Message() {
+	}
 	public String getId() {
 		return id;
 	}
@@ -162,5 +167,13 @@ class Message {
 
 	public void setText(String text) {
 		this.text = text;
+	}
+
+	public String getCreated() {
+		return created;
+	}
+
+	public Topic getTopic() {
+		return topic;
 	}
 }
