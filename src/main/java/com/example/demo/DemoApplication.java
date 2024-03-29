@@ -58,6 +58,29 @@ class RestApiDemoController {
 		return topic;
 	}
 
+	@PutMapping
+	public ResponseEntity<Topic> updateTopic(@RequestBody TopicRequest request) {
+		System.out.println("----------------------");
+		System.out.println(request.getName());
+		// TODO check client data
+		Optional<Topic> existingTopicOptional = topicRepository.findById(request.getId());
+		if (existingTopicOptional.isPresent()) {
+			Topic newTopic = new Topic(request.getId(), request.getName(), request.getCreated());
+//			if (request.getTopicName() != null) {
+//				existingTopic.setName(request.getTopicName());
+//			}
+			Topic updatedTopic = topicRepository.save(newTopic);
+			return ResponseEntity.ok(updatedTopic);
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
+
+
+//	@PutMapping
+//	Topic postTopic(@RequestBody Topic topic) {
+//		return topicRepository.save(topic);
+//	}
 
 
 //	@GetMapping("/{id}")
@@ -228,13 +251,19 @@ class TopicWithMessages {
 }
 
 class TopicWithMessageRequest {
+
+	private String id;
+
+	private String created;
 	private String topicName;
 	private Message message;
 	public TopicWithMessageRequest() {
 	}
-	public TopicWithMessageRequest(String topicName, Message message) {
+	public TopicWithMessageRequest(String id, String created, String topicName, Message message) {
 		this.topicName = topicName;
 		this.message = message;
+		this.id = id;
+		this.created = created;
 	}
 	public String getTopicName() {
 		return topicName;
@@ -250,5 +279,39 @@ class TopicWithMessageRequest {
 
 	public void setMessage(Message message) {
 		this.message = message;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getCreated() {
+		return created;
+	}
+
+	public void setCreated(String created) {
+		this.created = created;
+	}
+}
+
+class TopicRequest {
+	private String id;
+	private String name;
+	private String created;
+
+	public String getId() {
+		return id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getCreated() {
+		return created;
 	}
 }
