@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import com.smattme.requestvalidator.RequestValidator;
 import jakarta.persistence.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,9 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @SpringBootApplication
 public class DemoApplication {
@@ -33,7 +32,21 @@ class RestApiDemoController {
 		this.messageRepository = messageRepository;
 	}
 	@PostMapping("/topic")
-	TopicWithMessages postTopic(@RequestBody TopicWithMessageRequest request) {
+	ResponseEntity<?> postTopic(@RequestBody TopicWithMessageRequest request) {
+		Map<String, String> rules = new HashMap<>();
+		rules.put("topicName", "required|max:250");
+		rules.put("id", "required");
+		rules.put("message", "required");
+		List<String> errorsNull = RequestValidator.validate(request, rules);
+		if (!errorsNull.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid input");
+		}
+//		Map<String, String> rulesValid = new HashMap<>();
+//		rulesValid.put("topicName", "required|regex:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
+//		List<String> errorsValid = RequestValidator.validate(request, rulesValid);
+//		if (!errorsValid.isEmpty()) {
+//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Validation exception");
+//		}
 		Topic topic = new Topic(request.getTopicName());
 		topic = topicRepository.save(topic);
 		Message message = new Message(request.getMessage().getId(), request.getMessage().getText(), request.getMessage().getAuthor(), request.getMessage().getCreated());
@@ -45,11 +58,18 @@ class RestApiDemoController {
 		newTopicWithMessage.setId(topic.getId());
 		newTopicWithMessage.setName(topic.getName());
 		newTopicWithMessage.setMessages(messages);
-		return newTopicWithMessage;
+		return ResponseEntity.ok(newTopicWithMessage);
 	}
 	@PutMapping("/topic")
-	public ResponseEntity<Topic> updateTopic(@RequestBody TopicRequest request) {
-		// TODO check client data
+	public ResponseEntity<?> updateTopic(@RequestBody TopicRequest request) {
+		Map<String, String> rules = new HashMap<>();
+		rules.put("topicName", "required|max:250");
+		rules.put("id", "required");
+		rules.put("message", "required");
+		List<String> errorsNull = RequestValidator.validate(request, rules);
+		if (!errorsNull.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid input");
+		}
 		Optional<Topic> existingTopicOptional = topicRepository.findById(request.getId());
 		if (existingTopicOptional.isPresent()) {
 			Topic newTopic = new Topic(request.getId(), request.getName(), request.getCreated());
@@ -94,8 +114,9 @@ class RestApiDemoController {
 		return postMessage(topicId, request);
 	}
 	@DeleteMapping("/message/{messageId}")
-	void deleteMessage(@PathVariable String messageId) {
+	public ResponseEntity<?> deleteMessage(@PathVariable String messageId) {
 		messageRepository.deleteById(messageId);
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Successful operation");
 	}
 }
 
