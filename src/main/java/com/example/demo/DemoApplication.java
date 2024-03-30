@@ -95,21 +95,10 @@ class RestApiDemoController {
 	public ResponseEntity<TopicWithMessages> putMessage(@PathVariable String topicId, @RequestBody MessageRequest request){
 		return postMessage(topicId, request);
 	}
-
-
-
-
-
-
-
-
-	@DeleteMapping("/{id}")
-	void deleteTopic(@PathVariable String id) {
-		topicRepository.deleteById(id);
+	@DeleteMapping("message/{messageId}")
+	void deleteTopic(@PathVariable String messageId) {
+		messageRepository.deleteById(messageId);
 	}
-
-
-
 }
 
 interface TopicRepository extends CrudRepository<Topic, String> {}
