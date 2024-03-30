@@ -62,8 +62,6 @@ class RestApiDemoController {
 
 	@PutMapping
 	public ResponseEntity<Topic> updateTopic(@RequestBody TopicRequest request) {
-		System.out.println("----------------------");
-		System.out.println(request.getName());
 		// TODO check client data
 		Optional<Topic> existingTopicOptional = topicRepository.findById(request.getId());
 		if (existingTopicOptional.isPresent()) {
@@ -93,6 +91,16 @@ class RestApiDemoController {
 		topicWithMessages.setMessages(messages);
 		return ResponseEntity.ok(topicWithMessages);
 	}
+	@PutMapping("/{topicId}/message")
+	public ResponseEntity<TopicWithMessages> putMessage(@PathVariable String topicId, @RequestBody MessageRequest request){
+		return postMessage(topicId, request);
+	}
+
+
+
+
+
+
 
 
 	@DeleteMapping("/{id}")
