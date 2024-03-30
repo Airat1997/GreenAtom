@@ -1,5 +1,10 @@
-INSERT INTO countries (id, name) VALUES (1, 'USA');
-INSERT INTO countries (id, name) VALUES (2, 'France');
-INSERT INTO countries (id, name) VALUES (3, 'Brazil');
-INSERT INTO countries (id, name) VALUES (4, 'Italy');
-INSERT INTO countries (id, name) VALUES (5, 'Canada');
+INSERT INTO topic (id, name, created) VALUES (UUID(), 'C', NOW());
+INSERT INTO topic (id, name, created) VALUES (UUID(), 'C++', NOW());
+INSERT INTO topic (id, name, created) VALUES (UUID(), 'C#', NOW());
+INSERT INTO topic (id, name, created) VALUES (2, 'Java', NOW());
+INSERT INTO topic (id, name, created) VALUES (1, 'ПППП', NOW());
+INSERT INTO message (id, text, author, created, topic_id) VALUES (UUID(), 'Сток', 'Хзиев', NOW(), 2);
+INSERT INTO message (id, text, author, created, topic_id) VALUES (UUID(), 'Стос', 'Хиза', NOW(), 2);
+INSERT INTO message (id, text, author, created, topic_id) VALUES (UUID(), 'КибаСтос', 'ХэзМэн', NOW(), 1);
+INSERT INTO message (id, text, author, created, topic_id) VALUES (UUID(), 'Сточбл', 'Мэн', NOW(), 1);
+INSERT INTO message (id, text, author, created, topic_id) VALUES (UUID(), 'стЭйк', 'Стивен Конг', NOW(), 1);
