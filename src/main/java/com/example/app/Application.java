@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.app;
 
 import com.smattme.requestvalidator.RequestValidator;
 import jakarta.persistence.*;
@@ -15,32 +15,32 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @SpringBootApplication
-public class DemoApplication {
+public class Application {
 
 	public static void main(String[] args) {
-		SpringApplication.run(DemoApplication.class, args);
+		SpringApplication.run(Application.class, args);
 	}
 
 }
 
 @RestController
-class RestApiDemoController {
+class RestApiController {
 	private final TopicRepository topicRepository;
 	private final MessageRepository messageRepository;
-	public RestApiDemoController(TopicRepository topicRepository, MessageRepository messageRepository) {
+	public RestApiController(TopicRepository topicRepository, MessageRepository messageRepository) {
 		this.topicRepository = topicRepository;
 		this.messageRepository = messageRepository;
 	}
 	@PostMapping("/topic")
 	ResponseEntity<?> postTopic(@RequestBody TopicWithMessageRequest request) {
-		Map<String, String> rules = new HashMap<>();
-		rules.put("topicName", "required|max:250");
-		rules.put("id", "required");
-		rules.put("message", "required");
-		List<String> errorsNull = RequestValidator.validate(request, rules);
-		if (!errorsNull.isEmpty()) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid input");
-		}
+//		Map<String, String> rules = new HashMap<>();
+//		rules.put("topicName", "required|max:250");
+//		rules.put("id", "required");
+//		rules.put("message", "required");
+//		List<String> errorsNull = RequestValidator.validate(request, rules);
+//		if (!errorsNull.isEmpty()) {
+//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid input");
+//		}
 //		Map<String, String> rulesValid = new HashMap<>();
 //		rulesValid.put("topicName", "required|regex:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
 //		List<String> errorsValid = RequestValidator.validate(request, rulesValid);
@@ -62,14 +62,14 @@ class RestApiDemoController {
 	}
 	@PutMapping("/topic")
 	public ResponseEntity<?> updateTopic(@RequestBody TopicRequest request) {
-		Map<String, String> rules = new HashMap<>();
-		rules.put("topicName", "required|max:250");
-		rules.put("id", "required");
-		rules.put("message", "required");
-		List<String> errorsNull = RequestValidator.validate(request, rules);
-		if (!errorsNull.isEmpty()) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid input");
-		}
+//		Map<String, String> rules = new HashMap<>();
+//		rules.put("topicName", "required|max:250");
+//		rules.put("id", "required");
+//		rules.put("message", "required");
+//		List<String> errorsNull = RequestValidator.validate(request, rules);
+//		if (!errorsNull.isEmpty()) {
+//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid input");
+//		}
 		Optional<Topic> existingTopicOptional = topicRepository.findById(request.getId());
 		if (existingTopicOptional.isPresent()) {
 			Topic newTopic = new Topic(request.getId(), request.getName(), request.getCreated());
