@@ -33,13 +33,19 @@ class RestApiDemoController {
 		this.messageRepository = messageRepository;
 	}
 	@PostMapping("/topic")
-	Topic postTopic(@RequestBody TopicWithMessageRequest request) {
+	TopicWithMessages postTopic(@RequestBody TopicWithMessageRequest request) {
 		Topic topic = new Topic(request.getTopicName());
 		topic = topicRepository.save(topic);
 		Message message = new Message(request.getMessage().getId(), request.getMessage().getText(), request.getMessage().getAuthor(), request.getMessage().getCreated());
 		message.setTopic(topic);
 		messageRepository.save(message);
-		return topic;
+		List<Message> messages = messageRepository.findByTopicId(topic.getId());
+		TopicWithMessages newTopicWithMessage = new TopicWithMessages();
+		newTopicWithMessage.setCreated(topic.getCreated());
+		newTopicWithMessage.setId(topic.getId());
+		newTopicWithMessage.setName(topic.getName());
+		newTopicWithMessage.setMessages(messages);
+		return newTopicWithMessage;
 	}
 	@PutMapping("/topic")
 	public ResponseEntity<Topic> updateTopic(@RequestBody TopicRequest request) {
