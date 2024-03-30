@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,9 +30,9 @@ class RestApiDemoController {
 	private final TopicRepository topicRepository;
 	private final MessageRepository messageRepository;
 
-	public RestApiDemoController(TopicRepository topicRepository, MessageRepository mesegeRepository) {
+	public RestApiDemoController(TopicRepository topicRepository, MessageRepository messageRepository) {
 		this.topicRepository = topicRepository;
-		this.messageRepository = mesegeRepository;
+		this.messageRepository = messageRepository;
 	}
 
 	@GetMapping
@@ -43,6 +44,7 @@ class RestApiDemoController {
 		Topic topic = topicRepository.findById(topicId).orElseThrow(() -> new ResourceNotFoundException("Topic not found"));
 		List<Message> messages = messageRepository.findByTopicId(topicId);
 		TopicWithMessages topicWithMessages = new TopicWithMessages();
+		topicWithMessages.setCreated(topic.getCreated());
 		topicWithMessages.setId(topic.getId());
 		topicWithMessages.setName(topic.getName());
 		topicWithMessages.setMessages(messages);
@@ -76,29 +78,22 @@ class RestApiDemoController {
 		}
 	}
 
+	@PostMapping("/{topicId}/message")
+	public ResponseEntity<TopicWithMessages> postMessage(@PathVariable String topicId, @RequestBody MessageRequest request){
+		Topic topic = topicRepository.findById(topicId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Topic not found"));
+		Message message = new Message(request.getId(), request.getText(), request.getAuthor(), request.getCreated());
+		message.setTopic(topic);
+		messageRepository.save(message);
+		List<Message> messages = messageRepository.findByTopicId(topicId);
+		TopicWithMessages topicWithMessages = new TopicWithMessages();
+		topicWithMessages.setCreated(topic.getCreated());
+		topicWithMessages.setId(topic.getId());
+		topicWithMessages.setName(topic.getName());
+		topicWithMessages.setMessages(messages);
+		return ResponseEntity.ok(topicWithMessages);
+	}
 
-//	@PutMapping
-//	Topic postTopic(@RequestBody Topic topic) {
-//		return topicRepository.save(topic);
-//	}
-
-
-//	@GetMapping("/{id}")
-//	Optional<Topic> getAllMessageTopicById(@PathVariable String id) {
-//		return topicRepository.findById(id);
-//	}
-
-
-
-
-//	@PutMapping("/{id}")
-//	ResponseEntity<Topic> putTopic(@PathVariable String id,
-//									@RequestBody Topic topic) {
-//
-//		return (topicRepository.existsById(id))
-//				? new ResponseEntity<>(topicRepository.save(topic), HttpStatus.OK)
-//				: new ResponseEntity<>(topicRepository.save(topic), HttpStatus.CREATED);
-//	}
 
 	@DeleteMapping("/{id}")
 	void deleteTopic(@PathVariable String id) {
@@ -219,6 +214,8 @@ class Message {
 class TopicWithMessages {
 	private String id;
 	private String name;
+
+	private String created;
 	private List<Message> messages;
 
 	public TopicWithMessages(){
@@ -238,6 +235,14 @@ class TopicWithMessages {
 
 	public String getName() {
 		return name;
+	}
+
+	public String getCreated() {
+		return created;
+	}
+
+	public void setCreated(String created) {
+		this.created = created;
 	}
 
 	public List<Message> getMessages() {
@@ -313,5 +318,44 @@ class TopicRequest {
 
 	public String getCreated() {
 		return created;
+	}
+}
+
+class MessageRequest {
+	private String id;
+	private String text;
+	private String author;
+	private String created;
+
+	public String getId() {
+		return id;
+	}
+
+	public String getText() {
+		return text;
+	}
+
+	public String getAuthor() {
+		return author;
+	}
+
+	public String getCreated() {
+		return created;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
+
+	public void setAuthor(String author) {
+		this.author = author;
+	}
+
+	public void setCreated(String created) {
+		this.created = created;
 	}
 }
