@@ -25,21 +25,18 @@ public class DemoApplication {
 }
 
 @RestController
-@RequestMapping("/topic")
 class RestApiDemoController {
 	private final TopicRepository topicRepository;
 	private final MessageRepository messageRepository;
-
 	public RestApiDemoController(TopicRepository topicRepository, MessageRepository messageRepository) {
 		this.topicRepository = topicRepository;
 		this.messageRepository = messageRepository;
 	}
-
-	@GetMapping
+	@GetMapping("/topic")
 	Iterable<Topic> getTopics() {
 		return topicRepository.findAll();
 	}
-	@GetMapping("/{topicId}")
+	@GetMapping("/topic/{topicId}")
 	public ResponseEntity<TopicWithMessages> getAllMessagesTopicById(@PathVariable String topicId) {
 		Topic topic = topicRepository.findById(topicId).orElseThrow(() -> new ResourceNotFoundException("Topic not found"));
 		List<Message> messages = messageRepository.findByTopicId(topicId);
@@ -50,7 +47,7 @@ class RestApiDemoController {
 		topicWithMessages.setMessages(messages);
 		return ResponseEntity.ok(topicWithMessages);
 	}
-	@PostMapping
+	@PostMapping("/topic")
 	Topic postTopic(@RequestBody TopicWithMessageRequest request) {
 		Topic topic = new Topic(request.getTopicName());
 		topic = topicRepository.save(topic);
@@ -59,24 +56,19 @@ class RestApiDemoController {
 		messageRepository.save(message);
 		return topic;
 	}
-
-	@PutMapping
+	@PutMapping("/topic")
 	public ResponseEntity<Topic> updateTopic(@RequestBody TopicRequest request) {
 		// TODO check client data
 		Optional<Topic> existingTopicOptional = topicRepository.findById(request.getId());
 		if (existingTopicOptional.isPresent()) {
 			Topic newTopic = new Topic(request.getId(), request.getName(), request.getCreated());
-//			if (request.getTopicName() != null) {
-//				existingTopic.setName(request.getTopicName());
-//			}
 			Topic updatedTopic = topicRepository.save(newTopic);
 			return ResponseEntity.ok(updatedTopic);
 		} else {
 			return ResponseEntity.notFound().build();
 		}
 	}
-
-	@PostMapping("/{topicId}/message")
+	@PostMapping("/topic/{topicId}/message")
 	public ResponseEntity<TopicWithMessages> postMessage(@PathVariable String topicId, @RequestBody MessageRequest request){
 		Topic topic = topicRepository.findById(topicId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Topic not found"));
@@ -91,12 +83,12 @@ class RestApiDemoController {
 		topicWithMessages.setMessages(messages);
 		return ResponseEntity.ok(topicWithMessages);
 	}
-	@PutMapping("/{topicId}/message")
+	@PutMapping("/topic/{topicId}/message")
 	public ResponseEntity<TopicWithMessages> putMessage(@PathVariable String topicId, @RequestBody MessageRequest request){
 		return postMessage(topicId, request);
 	}
-	@DeleteMapping("message/{messageId}")
-	void deleteTopic(@PathVariable String messageId) {
+	@DeleteMapping("/message/{messageId}")
+	void deleteMessage(@PathVariable String messageId) {
 		messageRepository.deleteById(messageId);
 	}
 }
