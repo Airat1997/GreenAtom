@@ -1,10 +1,10 @@
 INSERT INTO topic (id, name, created) VALUES (UUID(), 'C', NOW());
 INSERT INTO topic (id, name, created) VALUES (UUID(), 'C++', NOW());
 INSERT INTO topic (id, name, created) VALUES (UUID(), 'C#', NOW());
-INSERT INTO topic (id, name, created) VALUES (2, 'Java', NOW());
-INSERT INTO topic (id, name, created) VALUES (1, 'ПППП', NOW());
-INSERT INTO message (id, text, author, created, topic_id) VALUES (UUID(), 'Сток', 'Хзиев', NOW(), 2);
-INSERT INTO message (id, text, author, created, topic_id) VALUES (UUID(), 'Стос', 'Хиза', NOW(), 2);
-INSERT INTO message (id, text, author, created, topic_id) VALUES (UUID(), 'КибаСтос', 'ХэзМэн', NOW(), 1);
-INSERT INTO message (id, text, author, created, topic_id) VALUES (UUID(), 'Сточбл', 'Мэн', NOW(), 1);
-INSERT INTO message (id, text, author, created, topic_id) VALUES (UUID(), 'стЭйк', 'Стивен Конг', NOW(), 1);
+INSERT INTO topic (id, name, created) VALUES (UUID(), 'Java', NOW());
+INSERT INTO topic (id, name, created) VALUES (UUID(), 'Python', NOW());
+INSERT INTO message (id, text, author, created, topic_id) VALUES (UUID(), 'Компилируемый язык программирования', 'Деннис Ричи', NOW(), (SELECT id FROM topic WHERE name = 'C'));
+INSERT INTO message (id, text, author, created, topic_id) VALUES (UUID(), 'Компилируемый язык программирования C++', 'Бьёрн Страуструп ', NOW(), (SELECT id FROM topic WHERE name = 'C++'));
+INSERT INTO message (id, text, author, created, topic_id) VALUES (UUID(), 'Объектно-ориентированный язык программирования C#', 'Андерс Хейлсберг', NOW(), (SELECT id FROM topic WHERE name = 'C#'));
+INSERT INTO message (id, text, author, created, topic_id) VALUES (UUID(), 'Объектно-ориентированный язык программирования Java', 'Джеймс Гослинг,', NOW(), (SELECT id FROM topic WHERE name = 'Java'));
+INSERT INTO message (id, text, author, created, topic_id) VALUES (UUID(), 'Высокоуровневый язык программирования Python', 'Гвидо ван Россум', NOW(), (SELECT id FROM topic WHERE name = 'Python'));
