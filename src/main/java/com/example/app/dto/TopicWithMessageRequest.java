@@ -2,6 +2,7 @@ package com.example.app.dto;
 
 import com.example.app.model.*;
 
+
 public class TopicWithMessageRequest {
 
     private String id;
