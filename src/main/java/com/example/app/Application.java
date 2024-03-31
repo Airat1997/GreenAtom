@@ -33,20 +33,6 @@ class RestApiController {
 	}
 	@PostMapping("/topic")
 	ResponseEntity<?> postTopic(@RequestBody TopicWithMessageRequest request) {
-//		Map<String, String> rules = new HashMap<>();
-//		rules.put("topicName", "required|max:250");
-//		rules.put("id", "required");
-//		rules.put("message", "required");
-//		List<String> errorsNull = RequestValidator.validate(request, rules);
-//		if (!errorsNull.isEmpty()) {
-//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid input");
-//		}
-//		Map<String, String> rulesValid = new HashMap<>();
-//		rulesValid.put("topicName", "required|regex:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
-//		List<String> errorsValid = RequestValidator.validate(request, rulesValid);
-//		if (!errorsValid.isEmpty()) {
-//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Validation exception");
-//		}
 		Topic topic = new Topic(request.getTopicName());
 		topic = topicRepository.save(topic);
 		Message message = new Message(request.getMessage().getId(), request.getMessage().getText(), request.getMessage().getAuthor(), request.getMessage().getCreated());
@@ -62,19 +48,17 @@ class RestApiController {
 	}
 	@PutMapping("/topic")
 	public ResponseEntity<?> updateTopic(@RequestBody TopicRequest request) {
-//		Map<String, String> rules = new HashMap<>();
-//		rules.put("topicName", "required|max:250");
-//		rules.put("id", "required");
-//		rules.put("message", "required");
-//		List<String> errorsNull = RequestValidator.validate(request, rules);
-//		if (!errorsNull.isEmpty()) {
-//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid input");
-//		}
 		Optional<Topic> existingTopicOptional = topicRepository.findById(request.getId());
 		if (existingTopicOptional.isPresent()) {
 			Topic newTopic = new Topic(request.getId(), request.getName(), request.getCreated());
 			Topic updatedTopic = topicRepository.save(newTopic);
-			return ResponseEntity.ok(updatedTopic);
+			List<Message> messages = messageRepository.findByTopicId(updatedTopic.getId());
+			TopicWithMessages newTopicWithMessage = new TopicWithMessages();
+			newTopicWithMessage.setCreated(updatedTopic.getCreated());
+			newTopicWithMessage.setId(updatedTopic.getId());
+			newTopicWithMessage.setName(updatedTopic.getName());
+			newTopicWithMessage.setMessages(messages);
+			return ResponseEntity.ok(newTopicWithMessage);
 		} else {
 			return ResponseEntity.notFound().build();
 		}
