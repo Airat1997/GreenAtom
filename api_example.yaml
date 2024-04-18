@@ -1,0 +1,261 @@
+openapi: 3.1.0
+info:
+  title: Forum Engine
+  description: |-
+    Примерный API движка Форума/Доски объявлений
+  version: 1.0.0
+servers:
+  - url: http://localhost/api/v1
+tags:
+  - name: Client API
+    description: API for regular users
+  - name: Admin API
+    description: API for administrators
+paths:
+  /topic:
+    post:
+      tags:
+        - Client API
+      summary: Ctreate a new topic
+      description: Ctreate a new topic to the store
+      operationId: CtreateTopic
+      requestBody:
+        description: Create a new topic
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewTopic'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TopicWithMessages'
+        '400':
+          description: Invalid input
+        '422':
+          description: Validation exception
+    put:
+      tags:
+        - Client API
+      summary: Update an existing topic
+      description: Update an existing topic by Id
+      operationId: updateTopic
+      requestBody:
+        description: Update an existent topic in the store
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Topic'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                    $ref: '#/components/schemas/TopicWithMessages'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Topic not found
+        '422':
+          description: Validation exception
+    get:
+      tags:
+        - Client API
+      summary: Show all topics
+      description: View all topics
+      operationId: listAllTopics
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                    $ref: '#/components/schemas/Topic'
+  /topic/{topicId}:
+    get:
+      tags:
+        - Client API
+      summary: View messages of topic
+      description: Shows all messages in topic
+      operationId: ListTopicMessages
+      parameters:
+        - name: topicId
+          in: path
+          description: ID of topic
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TopicWithMessages'
+        '400':
+          description: Invalid topic ID
+  /topic/{topicId}/message:
+    post:
+      tags:
+        - Client API
+      summary: Ctreate a new mesage
+      description: Ctreate a new messge in topic
+      operationId: CtreateMessage
+      parameters:
+        - name: topicId
+          in: path
+          description: ID of topic where add the message
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Create a new topic
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TopicWithMessages'
+        '400':
+          description: Invalid input
+        '422':
+          description: Validation exception
+    put:
+      tags:
+        - Client API
+      summary: Update an existing message
+      description: Update an existing message by Id
+      operationId: updateMessage
+      parameters:
+        - name: topicId
+          in: path
+          description: ID of topic where update the message
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Update an existent message
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                items:
+                    $ref: '#/components/schemas/TopicWithMessages'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Topic not found
+        '422':
+          description: Validation exception
+  /message/{messageId}:
+    delete:
+      tags:
+        - Client API
+      summary: Delete an existing message
+      description: Delete an existing message by Id
+      operationId: deleteMessage      
+      parameters:
+        - name: messageId
+          in: path
+          description: ID of message to delete
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Successful operation
+components:
+  schemas:
+    Topic:
+      required:
+        - id
+        - name
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          examples: [19a69803-97d8-4e71-bc91-d3b7151ab30d]
+        name:
+          type: string
+          examples: [Тестовая тема]
+        created:
+          type: string
+          examples: [2024-12-03T15:23:17+03:00]
+    TopicWithMessages:
+      required:
+        - id
+        - name
+        - messages
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          examples: [19a69803-97d8-4e71-bc91-d3b7151ab30d]
+        name:
+          type: string
+          examples: [Тестовая тема]
+        created:
+          type: string
+          examples: [2024-12-03T15:23:17+03:00]
+        messages:
+          type: array
+          items:
+              $ref: '#/components/schemas/Message'
+    Message:
+      required:
+        - id
+        - text
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          examples: [2603eb0f-9295-402b-a958-8934bf400119]
+        text:
+          type: string
+          examples: [Первое сообщение]
+        author:
+          type: string
+          examples: [Ivan]
+        created:
+          type: string
+          examples: [2024-12-03T15:23:17+03:00]
+    NewTopic:
+        required:
+            - topicName
+            - message
+        type: object
+        properties:
+            topicName:
+              type: string              
+              examples: [Тестовая тема]
+            message:
+              $ref: '#/components/schemas/Message'
